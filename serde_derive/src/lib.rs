@@ -8,7 +8,7 @@ use std::str::FromStr;
 
 use proc_macro::TokenStream;
 use syn::{
-    Meta, Result, Token, Type,
+    Ident, Meta, Path, PathSegment, Result, Token, Type, TypePath,
     parse::{Parse, ParseStream},
     punctuated::Punctuated,
 };
@@ -21,12 +21,12 @@ impl Parse for MetaListParser {
     }
 }
 
-fn parse_int<T: std::str::FromStr>(expr: syn::Expr) -> Option<T>
+fn parse_int<T: std::str::FromStr>(expr: &syn::Expr) -> Option<T>
 where
     <T as FromStr>::Err: std::fmt::Display,
 {
     if let syn::Expr::Lit(expr_lit) = expr {
-        if let syn::Lit::Int(lit) = expr_lit.lit {
+        if let syn::Lit::Int(lit) = &expr_lit.lit {
             return lit.base10_parse::<T>().ok();
         }
     }
@@ -82,7 +82,7 @@ fn is_struct_type(ty: &Type) -> bool {
 
             return !(is_primitive_type_str(&ident) || is_std_type_str(&ident));
         }
-        _ => true,
+        _ => false,
     }
 }
 
@@ -100,4 +100,15 @@ pub fn encoder_derive(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(Decoder, attributes(ByteOrder, bitfield, len_by_field, len, delimiter))]
 pub fn decoder_derive(input: TokenStream) -> TokenStream {
     decoder::decode_input(input)
+}
+
+/// 将 Ident 转成 syn::Type
+fn ident_to_type(ident: &Ident) -> Type {
+    Type::Path(TypePath {
+        qself: None,
+        path: Path {
+            leading_colon: None,
+            segments: vec![PathSegment::from(ident.clone())].into_iter().collect(),
+        },
+    })
 }

@@ -2,12 +2,13 @@ use std::collections::HashMap;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Data, DeriveInput, Fields, Type, parse_macro_input};
+use syn::{Data, DeriveInput, Fields, Meta, Type, parse_macro_input};
 
 use crate::{
     ByteOrder,
     bitfield::{BitAttr, BitFieldAccum},
-    is_primitive_type, is_primitive_type_str, is_std_type, is_std_type_str, is_struct_type,
+    ident_to_type, is_primitive_type, is_primitive_type_str, is_std_type, is_std_type_str,
+    is_struct_type, parse_int,
 };
 
 pub fn encode_input(input: TokenStream) -> TokenStream {
@@ -34,39 +35,76 @@ pub fn encode_input(input: TokenStream) -> TokenStream {
         }
     }
 
-    if let Data::Struct(data) = &input.data {
-        if let Fields::Named(fields) = &data.fields {
-            for field in &fields.named {
-                let name = field.ident.clone().unwrap();
-                let ty = &field.ty;
+    match &input.data {
+        Data::Struct(data_struct) => {
+            if let Fields::Named(fields) = &data_struct.fields {
+                for field in &fields.named {
+                    let name = field.ident.clone().unwrap();
+                    let ty = &field.ty;
 
-                field_map.insert(name.clone(), ty.clone());
+                    field_map.insert(name.clone(), ty.clone());
 
-                if is_struct_type(ty) {
-                    if acc.is_active() {
-                        panic!("Missing end in bitfield sequence");
-                    }
-                    encode_stmts.push(quote! {
-                        self.#name.encode(buf);
-                    });
-                } else {
-                    if let Some(attr) = BitAttr::from_field(&field) {
-                        // bitfield 字段
-                        acc.push(name.clone(), ty.clone(), attr.bit_len);
-
-                        if attr.bit_end {
-                            encode_stmts.push(gen_bitfield_encode(&acc, byte_order));
-                            acc.clear();
-                        }
-                    } else {
+                    if is_struct_type(ty) {
                         if acc.is_active() {
                             panic!("Missing end in bitfield sequence");
                         }
-                        encode_stmts.push(gen_encode_for_normal(&name, ty, byte_order));
+                        encode_stmts.push(quote! {
+                            self.#name.encode(buf);
+                        });
+                    } else {
+                        if let Some(attr) = BitAttr::from_field(&field) {
+                            // bitfield 字段
+                            acc.push(name.clone(), ty.clone(), attr.bit_len);
+
+                            if attr.bit_end {
+                                encode_stmts.push(gen_bitfield_encode(&acc, byte_order));
+                                acc.clear();
+                            }
+                        } else {
+                            if acc.is_active() {
+                                panic!("Missing end in bitfield sequence");
+                            }
+                            encode_stmts.push(gen_encode_for_normal(&name, ty, byte_order));
+                        }
                     }
                 }
             }
         }
+        Data::Enum(_) => {
+            let mut primitive_ident = None;
+            for attr in input.attrs {
+                if attr.path().is_ident("repr") {
+                    if let Meta::List(list) = &attr.meta {
+                        if let Ok(ident) = syn::parse2::<syn::Ident>(list.tokens.clone()) {
+                            if is_primitive_type_str(ident.to_string().as_str()) {
+                                primitive_ident = Some(ident);
+                            }
+                        }
+                    }
+                }
+            }
+
+            let primitive_ident = primitive_ident.expect("need repr(u8/u16/...)");
+            let primitive_ty = ident_to_type(&primitive_ident);
+
+            let stmt = {
+                match primitive_ident.to_string().as_str() {
+                    "bool" => quote! {},
+                    "u8" => quote! { buf.put_i8(*self as #primitive_ty) },
+                    "i8" => quote! { buf.put_i8(*self as #primitive_ty) },
+                    _ => match byte_order {
+                        ByteOrder::BE => quote! {
+                            buf.extend_from_slice(&(*self as #primitive_ty).to_be_bytes())
+                        },
+                        ByteOrder::LE => quote! {
+                            buf.extend_from_slice(&(*self as #primitive_ty).to_le_bytes())
+                        },
+                    },
+                }
+            };
+            encode_stmts.push(stmt);
+        }
+        _ => panic!("Union not suppiort"),
     }
 
     if acc.is_active() {

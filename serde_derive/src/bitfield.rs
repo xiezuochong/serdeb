@@ -62,7 +62,7 @@ impl BitAttr {
                     match meta {
                         Meta::NameValue(nv) => {
                             if nv.path.is_ident("len") {
-                                bit_len = parse_int::<usize>(nv.value);
+                                bit_len = parse_int::<usize>(&nv.value);
                             }
                         }
                         Meta::Path(path) => {
