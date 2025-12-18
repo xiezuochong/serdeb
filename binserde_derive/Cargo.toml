@@ -1,5 +1,5 @@
 [package]
-name = "serde_derive"
+name = "binserde_derive"
 version = "0.1.0"
 edition = "2024"
 
@@ -7,8 +7,6 @@ edition = "2024"
 proc-macro = true
 
 [dependencies]
-byte = "0.2"
-bytes = "1"
 syn = { version = "2.0", features = ["full", "extra-traits"] }
 quote = "1.0"
 proc-macro2 = "1.0"

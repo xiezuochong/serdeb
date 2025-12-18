@@ -1,0 +1,24 @@
+[package]
+name = "binserde"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+derive = []
+
+[dependencies]
+bytes = "1"
+memchr = "2.7"
+thiserror = "2"
+
+binserde_derive = { path = "../binserde_derive" }
+
+[[test]]
+name = "base"
+path = "tests/base.rs"
+
+[[test]]
+name = "serde_derive"
+path = "tests/serde_derive.rs"
+required-features = ["derive"]
