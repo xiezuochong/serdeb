@@ -2,6 +2,10 @@
 name = "serdeb_derive"
 version = "0.1.0"
 edition = "2024"
+authors = ["Xiezuochong"]
+description = "struct serde binary"
+documentation = "https://docs.rs/serdeb"
+license = "Apache-2.0"
 
 [lib]
 proc-macro = true
