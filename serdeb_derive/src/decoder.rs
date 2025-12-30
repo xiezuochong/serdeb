@@ -21,7 +21,7 @@ pub fn decode_input(input: TokenStream) -> TokenStream {
             let (stmts_le, field_inits_le) =
                 decode_struct(&input, ByteOrder::LE, &struct_info);
             quote! {
-                impl #generics ::binserde::Decode for #struct_name #generics {
+                impl #generics ::serdeb::Decode for #struct_name #generics {
                     fn decode_be(buf: &[u8], offset: &mut usize) -> ::std::result::Result<Self, ()> {
                         use ::bytes::Buf;
 
@@ -60,7 +60,7 @@ pub fn decode_input(input: TokenStream) -> TokenStream {
 
             let generics = &input.generics;
             quote! {
-                impl #generics ::binserde::Decode for #enum_name #generics {
+                impl #generics ::serdeb::Decode for #enum_name #generics {
                     fn decode_be(buf: &[u8], offset: &mut usize) -> ::std::result::Result<Self, ()> {
                         use ::bytes::Buf;
         

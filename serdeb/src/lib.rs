@@ -3,7 +3,7 @@ mod encode;
 pub mod error;
 
 #[cfg(feature = "derive")]
-pub use binserde_derive::{Decoder, Encoder};
+pub use serdeb_derive::{Decoder, Encoder};
 
 pub use bytes::BytesMut;
 pub use memchr;

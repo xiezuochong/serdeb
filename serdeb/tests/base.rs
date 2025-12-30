@@ -1,4 +1,4 @@
-use binserde::{DecodeStr, EncodeStr};
+use serdeb::{DecodeStr, EncodeStr};
 
 #[test]
 fn test() {

@@ -3,25 +3,6 @@
 version = 4
 
 [[package]]
-name = "binserde"
-version = "0.1.0"
-dependencies = [
- "binserde_derive",
- "bytes",
- "memchr",
- "thiserror",
-]
-
-[[package]]
-name = "binserde_derive"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "bytes"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -49,6 +30,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f"
 dependencies = [
  "proc-macro2",
+]
+
+[[package]]
+name = "serdeb"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "memchr",
+ "serdeb_derive",
+ "thiserror",
+]
+
+[[package]]
+name = "serdeb_derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

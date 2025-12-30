@@ -1,4 +1,4 @@
-use binserde::{Decode, DecodeStr, Decoder, Encode, EncodeStr, Encoder};
+use serdeb::{Decode, DecodeStr, Decoder, Encode, EncodeStr, Encoder};
 use bytes::BytesMut;
 
 #[derive(Debug, Encoder, Decoder, Default, Clone, Copy, PartialEq)]
@@ -10,16 +10,16 @@ pub enum E {
 
 #[derive(Debug, Encoder, Decoder, PartialEq)]
 pub struct P {
-    #[binserde(bit_width = 2)]
+    #[serdeb(bit_width = 2)]
     a: u8,
-    #[binserde(bit_width = 2)]
+    #[serdeb(bit_width = 2)]
     b: u8,
     c: u8,
-    #[binserde(delimiter = b'\0')]
+    #[serdeb(delimiter = b'\0')]
     str_: String,
-    #[binserde(len_from = c)]
+    #[serdeb(len_from = c)]
     vec: Vec<u8>,
-    #[binserde(bit_width = 2)]
+    #[serdeb(bit_width = 2)]
     d: E
 }
 

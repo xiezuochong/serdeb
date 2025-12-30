@@ -20,13 +20,13 @@ pub fn encode_input(input: TokenStream) -> TokenStream {
             let stmts_le = encode_struct(&input, ByteOrder::LE, &struct_info);
 
             quote! {
-                impl #generics ::binserde::Encode for #struct_name #generics {
-                    fn encode_be(&self, buf: &mut BytesMut) -> Result<(), ::binserde::error::EncodeError> {
+                impl #generics ::serdeb::Encode for #struct_name #generics {
+                    fn encode_be(&self, buf: &mut BytesMut) -> Result<(), ::serdeb::error::EncodeError> {
                         #(#stmts_be)*;
                         Ok(())
                     }
 
-                    fn encode_le(&self, buf: &mut BytesMut) -> Result<(), ::binserde::error::EncodeError> {
+                    fn encode_le(&self, buf: &mut BytesMut) -> Result<(), ::serdeb::error::EncodeError> {
                         #(#stmts_le)*;
                         Ok(())
                     }
@@ -47,13 +47,13 @@ pub fn encode_input(input: TokenStream) -> TokenStream {
 
             let generics = &input.generics;
             quote! {
-                impl #generics ::binserde::Encode for #enum_name #generics {
-                    fn encode_be(&self, buf: &mut BytesMut) -> Result<(), ::binserde::error::EncodeError> {
+                impl #generics ::serdeb::Encode for #enum_name #generics {
+                    fn encode_be(&self, buf: &mut BytesMut) -> Result<(), ::serdeb::error::EncodeError> {
                         #(#stmts_be)*
                         Ok(())
                     }
 
-                    fn encode_le(&self, buf: &mut BytesMut) -> Result<(), ::binserde::error::EncodeError> {
+                    fn encode_le(&self, buf: &mut BytesMut) -> Result<(), ::serdeb::error::EncodeError> {
                         #(#stmts_le)*
                         Ok(())
                     }
@@ -125,7 +125,7 @@ fn encode_struct(
 
                     encode_stmts.push(quote! {
                         if v > #int {
-                            return Err(binserde::error::EncodeError::BitWidthLimit { field: #name_str, value: v.to_string() });
+                            return Err(serdeb::error::EncodeError::BitWidthLimit { field: #name_str, value: v.to_string() });
                         }
                     });
 

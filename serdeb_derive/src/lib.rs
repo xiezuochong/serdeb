@@ -81,12 +81,12 @@ enum ByteOrder {
     LE,
 }
 
-#[proc_macro_derive(Encoder, attributes(byte_order, binserde))]
+#[proc_macro_derive(Encoder, attributes(byte_order, serdeb))]
 pub fn encoder_derive(input: TokenStream) -> TokenStream {
     encoder::encode_input(input)
 }
 
-#[proc_macro_derive(Decoder, attributes(byte_order, binserde))]
+#[proc_macro_derive(Decoder, attributes(byte_order, serdeb))]
 pub fn decoder_derive(input: TokenStream) -> TokenStream {
     decoder::decode_input(input)
 }
@@ -239,7 +239,7 @@ impl FieldInfo {
 
             let ident_str = ident.to_string();
 
-            if ident_str.ne("binserde") {
+            if ident_str.ne("serdeb") {
                 continue;
             }
 
